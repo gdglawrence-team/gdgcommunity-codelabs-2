@@ -1,0 +1,404 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>GDG Lawrence Full Stack Community Application Authentication Codelab</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/codelab-elements/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="fullstack_login"
+                  title="GDG Lawrence Full Stack Community Application Authentication Codelab"
+                  environment="web"
+                  feedback-link="">
+    
+      <google-codelab-step label="Overview" duration="2">
+        <p>This codelab provides the tutorial on how to set the GDG Community project and to create the login page for the application.</p>
+<h2 is-upgraded>What you will learn</h2>
+<ul>
+<li>How to create the GDG Community project</li>
+<li>How to create the Angular Login Component</li>
+<li>How to create a Web project in Firebase</li>
+<li>How to use Firebase Google Login API</li>
+</ul>
+<h2 is-upgraded>Prerequisites</h2>
+<ul>
+<li>Full Stack Development Environment Setup</li>
+<li>Familiar with Html, CSS, and Typescript</li>
+<li>Internet Connection</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Creating the GDG Community project" duration="0">
+        <p>Open Visual Studio Code and open the terminal via the Terminal menu in the Visual Studio Code editor.</p>
+<p>After the terminal window is opened in the editor, type the following Angular ClI command at the terminal. The Angular CLI ng new command creates the Angular project. The command will ask if you would like to enable routing, select <strong>Y</strong> to enable routing.</p>
+<p>In addition, it will ask you to select a stylesheet format, select <strong>Less</strong> by using the down arrow key to move the item down. Press the  key to generate the project. The command prints the progress information as it goes through the project creation process.</p>
+<pre><code>ng new gdgcommunity
+? Would you like to add Angular routing? (y/N) y
+? Which stylesheet format would you like to use? (Use arrow keys)
+? Which stylesheet format would you like to use? 
+  CSS 
+  SCSS   [ https://sass-lang.com/documentation/syntax#scss                ] 
+  Sass   [ https://sass-lang.com/documentation/syntax#the-indented-syntax ] 
+❯ Less   [ http://lesscss.org                                             ] 
+  Stylus [ http://stylus-lang.com                                         ]                            ] 
+</code></pre>
+<p>After the project is created, cd directory to gdgcommunity and type ng serve at the terminal. This command will compile the project and launch the HTTP server at <strong>http://localhost:4200</strong>.</p>
+<p>Open your browser and navigate to this URL. The project home page is displayed. This page shows the generated Angular project template home page.</p>
+<pre><code>npm start
+</code></pre>
+<p>or</p>
+<pre><code>ng serve
+</code></pre>
+<p>Excellent! You have just created your Angular Application!</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Create a Firebase project" duration="0">
+        <p>In this step, you will create a Firebase project as the back end for the Angular application. You will need an Gmail account to login to the Firebase console. Open a browser, and navigate to <a href="https://firebase.google.com" target="_blank">Firebase Console</a>.</p>
+<p>Click the <strong>Go to Console</strong> on the top right of the page. In the Firebase console, click Add Project, this will navigate to the project creation page. Enter the project information like so.</p>
+<p class="image-container"><img alt="alt text" src="img/f4a3b898fb54de76.png"></p>
+<p>Click the <strong>Continue</strong> button to complete the project creation process. In the Google Analytics screen, turn off Google Analytics and click the Create Project button. Please wait for Firebase to complete the project creation process and click the Continue button. Firebase will bring you to the gdgcommunity project page.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Enable Google Authentication for the Firebase project" duration="0">
+        <p>On the left sidebar of the Firebase console, click Authentication and the Authentication page is shown. Click the Sign-in method tab. In the sign-in providers list, click Google and click the Enable slider button after the Google Authentication page is shown. Select the project support email and click Save to finish. You have now enabled Google Sign-in for your Firebase project.</p>
+<p class="image-container"><img alt="alt text" src="img/4c8d7fef4a46d34.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Setup Angular Application" duration="0">
+        <p>With the generated Angular application, we need to setup application dependencies and features for the application navigation. In this step, we need to perform the following to create our login page.</p>
+<ul>
+<li>Clean up application template</li>
+<li>Angular Routing</li>
+<li>Firebase Dependencies</li>
+</ul>
+<p>Open the app.component.html and change its content to the following. The app component is the bootstrap component which is specified in the <strong>app.module.ts</strong>.</p>
+<p>Open the <strong>app.module.ts</strong> to review the Angular bootstrap component. The <strong>app.module.ts</strong> file specified application declarations and imports as well. When we use <strong>ng generate component login</strong>, the generator has already added the login declaration for us.</p>
+<pre><code>&lt;router-outlet&gt;&lt;/router-outlet&gt;
+</code></pre>
+<p>When the application is generated, Angular route has been generated into the <strong>app-routing.module.ts</strong>. However, the application routes have not been defined. We have to define our application routes in this file.</p>
+<p>From the application design, we know that we have the following routes. For this lab, we will focus on the default and the login routes. For the default route, we need an <strong>AuthGuard</strong> class to check our application authentication states.</p>
+<p>Our default route is to navigate to the form component, but if the authentication state is not login, the AuthGuard class will re-direct to the login component first.</p>
+<p>Create the basic page component for the Form page for this project by running the command <strong>ng generate component form</strong>. This will do the same as the login, where it will create an Angular component called <strong>form.component</strong> with a corresponding .HTML, .LESS. .TS files for the logic and testing, within a folder called <strong>form</strong>.</p>
+<p>To add the default and login routes, we add these codes in <strong>app-routing.module.ts</strong> to the routes array. As mentioned previously, the <strong>canActivate</strong> is check authentiction stats against the AuthGuard object.</p>
+<pre><code>  { path: &#39;&#39;, component: FormComponent, canActivate: [AuthGuard] },
+  { path: &#39;login&#39;, component: LoginComponent }
+</code></pre>
+<p>Next, we will need to import the Firebase dependencies into our application. Open the Visual Studio Code terminal, type <strong>ng add @angular/fire</strong>. This Angular CLI <strong>ng add</strong> command adds the Firebase depdendencies into our project. It updates the <strong>packages.json</strong> file and installs the Firebase dependencies. When ask to select a project, select your project.</p>
+<pre><code>ng add @angular/fire
+</code></pre>
+<p>Next we add the Firebase dependencies to the <strong>app.module.ts</strong> file; add the following line of code into the imports array.</p>
+<p>The <strong>initializeApp</strong> method of the AngularFireModule initialize the application with the Firebase application configuration that is specified in environment.firebase constant. To setup the Firebase application configuration, we need to open the browser and logon to the Firebase console.</p>
+<p>Navigate to our Firebase project and retrieve the Firebase application configuration.</p>
+<pre><code>AngularFireModule.initializeApp(environment.firebase, &#39;angular-auth-firebase&#39;)
+</code></pre>
+<p>In the previous step, we have create the Firebase project, but we have not register it with the Web App yet. To register with our Web App, click the <strong>Web App</strong> button in the Firebase project home page.</p>
+<p>To see which button is the Web App, hover your mouse over the buttons. After clicking the Web App button, you will be prompted with the Add Firebase to your web app screen, enter gdgcommunity for the App nickname.</p>
+<p>Click the <strong>Register App</strong> button to complete the registration. Copy the Firebase application configuration from the registration details screen. There is a copy button on the lower right corner and paste the Firebase application configuration to the environment files in the application. We will name the configuration in the <strong>environment.ts</strong> and <strong>environment.prod.ts</strong> firebase. See code snippets below.</p>
+<p class="image-container"><img alt="alt text" src="img/e61b5c8ddf44f460.png"></p>
+<p class="image-container"><img alt="alt text" src="img/e21eb93e3a369670.png"></p>
+<p class="image-container"><img alt="alt text" src="img/c2e0d191be849e17.png"></p>
+<p>Firebase application configuration:</p>
+<pre><code>export const environment = {
+  production: false,
+  firebase : {
+    apiKey: &#34;AIzaSyDOdBmVvI30Jg49oup4gsJMZMjTPhHOloQ&#34;,
+    authDomain: &#34;fullstack-labs.firebaseapp.com&#34;,
+    databaseURL: &#34;https://fullstack-labs.firebaseio.com&#34;,
+    projectId: &#34;fullstack-labs&#34;,
+    storageBucket: &#34;fullstack-labs.appspot.com&#34;,
+    messagingSenderId: &#34;251418261584&#34;,
+    appId: &#34;1:251418261584:web:2e01357a093d27476b7955&#34;
+  }
+</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Create Login Component" duration="0">
+        <p>In this step, we are going to create a new component and we will name it <strong>login</strong>. We will create a back-end service to communicate to Firebase Google Authentication.</p>
+<p>To create the Login component, we will use Angular Cli. In Visual Studio Code&#39;s Terminal window, verify that you are in the project&#39;s root folder. At the Terminal window, type <strong>ng generate component login</strong>. If the previous&#39;s ng serve still running, Ctrl-C to stop it first.</p>
+<p>After the ng generate CLI command finished, it has generate several files under the src/app/login directory. Refer to <a href="https://angular.io/cli/generate" target="_blank">ng generate</a> for additional details for the ng generate CLI command. ng generate can generate a number of different schematics.</p>
+<p>Click the component link to review the ng generate component details. Angular provides an excellent tutorial about the ng generate component in <a href="https://angular.io/tutorial/toh-pt3" target="_blank">ng generate component tutorial</a>. We will be modifying the html, less and ts files. The .spec.ts file is for Angular unit tests. Unit tests are an important piece of the development process, but they are outside of the scope of this lab.</p>
+<pre><code>ng generate component Login
+CREATE src/app/login/login.component.less (0 bytes)
+CREATE src/app/login/login.component.html (20 bytes)
+CREATE src/app/login/login.component.spec.ts (621 bytes)
+CREATE src/app/login/login.component.ts (272 bytes)
+UPDATE src/app/app.module.ts (471 bytes)
+</code></pre>
+<p>The GDG Community application login screen will look like this below. Open the login.component.html file in the Visual Studio Code editor and create the html content base on the screenshot below.</p>
+<p class="image-container"><img alt="alt text" src="img/d9cfd1abac158f5f.png"></p>
+<p>We will layout the Flutter logo, Application name, and the Google sign-in button. In html, we can use the div tag to layout contents, and the button tag for button. For the application name, we will use the div tag. For the logo, we will use the svg tag. See the code snippests below.</p>
+<p>You can use the svg content for the Flutter logo in your lab. The svg tag allows us to embedded the logo image directly in html. To align the content, you will need to edit the <strong>login.component.less</strong> file. We will be using flexbox for this. Please refer to this link for a tutorial of <a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" target="_blank">flexbox</a>. Follow this link <a href="http://lesscss.org" target="_blank">less</a> to learn more about less syntax. To complete this step, we recommend that you spend sometime in these tutorials.</p>
+<p>Replace the contents of the <strong>login.component.html</strong> file with the following code:</p>
+<pre><code>&lt;div class=&#34;login-main&#34;&gt;
+  &lt;div class=&#34;login-container&#34;&gt;
+    &lt;div class=&#34;login-item&#34;&gt;
+      &lt;svg xmlns=&#34;http://www.w3.org/2000/svg&#34; xmlns:xlink=&#34;http://www.w3.org/1999/xlink&#34; width=&#34;198&#34; height=&#34;106&#34; viewBox=&#34;0 0 198 106&#34;&gt;
+        &lt;g id=&#34;Group_1&#34; data-name=&#34;Group 1&#34; transform=&#34;translate(493 -1544)&#34;&gt;
+          &lt;image id=&#34;gdg_solo_logo_white&#34; width=&#34;198&#34; height=&#34;106&#34; transform=&#34;translate(-493 1544)&#34; xlink:href=&#34;data:image/png;base64,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&#34;/&gt;
+        &lt;/g&gt;
+      &lt;/svg&gt;
+    &lt;/div&gt;
+    &lt;div class=&#34;login-title login-item&#34;&gt;GDG Community&lt;/div&gt;
+    &lt;button class=&#34;login-btn login-item&#34;&gt;Sign In With Google&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<p>At this point, you can only display the login page. There is no authentication logic yet. Let&#39;s proceed with the corresponding CSS.</p>
+<p>In the project, under the <strong>assets</strong> folder, create another folder called <strong>styles</strong>. This will house all the CSS related to the project. Create a LESS file called <strong>colors.less</strong> which will contain common classes representing colors across the application.</p>
+<p>Copy all these LESS variables representing the various colors we&#39;ll use. This is how you organize your CSS classes, by having common classes located in a single file and then you can import anywhere else.</p>
+<pre><code>@color_blue : #006FC5;
+@color_btn_blue: rgba(255,255,255, 0.1);
+@color_bgkblue: #1161BE;
+@color_grey: grey;
+@color_profile: #00C26B;
+@color_hover_bckg: rgba(255,255,255, 0.2);
+@color_focus_bckg: rgb(89, 147, 192);
+</code></pre>
+<p>Now, go back to the login component folder and find the <strong>login.component.less</strong> file.</p>
+<p>At the top of the file, add an import statement of the color LESS file, that way in this component we can access those color variables. By using the <strong>@import</strong> statement followed by the relative path of the location of a LESS file is how you import them, allowing you to reuse LESS files across your web app.</p>
+<pre><code>@import &#39;./../../assets/styles/colors.less&#39;;
+</code></pre>
+<p>Now, add the following CSS to the login.component.less file and see how we refer to the colors available in the <strong>colors.less</strong> file.</p>
+<pre><code>.login-main {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: @color_blue; // access the color blue from the colors.less
+}
+
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-item {
+    resize: vertical;
+    justify-content: center;
+}
+
+.login-title {
+    width: auto;
+    font-size: 30px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.login-btn {
+    width: 180px;
+    height: 40px;
+    color: white;
+    border-style: inset;
+    border-radius: 20px;
+    background-color: @color_btn_blue; // access the blue for the buttons
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.login-btn:hover {
+    background-color: @color_hover_bckg;
+}
+
+.login-btn:active {
+    outline: none;
+    border-width: 0em;
+    border-radius: 20px;
+    background-color: @color_focus_bckg;
+}
+
+.login-btn:focus {
+    outline: none;
+    border-width: 0em;
+    border-radius: 20px;
+    background-color: @color_btn_blue; // reuse the same color blue in many places
+}
+</code></pre>
+<p>Notice in the LESS file we are using a lot of references to strategies on responsive design in CSS. We are extensively using the <a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" target="_blank">CSS3&#39;s Flexbox Model</a>, which allows you to lay out CSS in a very structured and &#34;flexible&#34; way.</p>
+<p>For example, the main page (<strong>login-main</strong>) has a height defined based on what the browser&#39;s viewport is (<em>height: 100vh</em>). Therefore regardless of the height of the viewport (the visible portion of the browser&#39;s screen) the login page will always match on that height, allowing for the screen to have a responsive behavior. Its children are laid out on the center of the screen by adding <strong>display: flex</strong>, and justifying on the center (both on the vertical and horizontal axis) using <em>justify-content:center</em> and <em>align-items:center</em> respectively. Notice how we set its background color using one of the LESS variables imported from the <strong>styles.less</strong> file called <em>@color_blue</em>.</p>
+<p>The <strong>login-container</strong> which is the div container that houses the logo, the GDG Community Label and the button, has the <strong>display: flex</strong> style applied to it. By default, <em>display: flex</em> arranges the child elements of the container in which it gets applied in a horizontal fashion from left to right. This time we are arranging it in a column, hence the additional <strong>flex-direction: column</strong> style, which arranges them in a column, from top to bottom.</p>
+<p>Then we add other flexbox model treatments such as <strong>align-items: center</strong> which aligns them on the center of the main axis (in this case, vertical axis due to the column layout), and then the <strong>justify-content: center</strong> centers it on the opposite axis to the main axis (the horizontal axis in this case). This allows for the contents of the <strong>login-container</strong> to always display on the center of the screen, regardless of the size of the viewport.</p>
+<p>Your login page should have most of the pieces laid out from the front-end standpoint at this point.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Create Authenticate logics" duration="0">
+        <p>In this step, we will create the AuthGuard class and update the login component with our Google authentication logics. In Visual Studio Code&#39;s terminal window, change directory to src/app and make a new directory called &#34;helpers&#34;. Change directory to the helpers folder.</p>
+<p>Type ng generate class AuthGuard. This will generate a new AuthGuard class under the helpers folder.</p>
+<pre><code>ng generate class AuthGuard
+</code></pre>
+<p>Open the auth-guard.ts file in Visual Studio Code. Note that an empty AuthGuard class is created. To authenticate with Firebase Google Sign In mechanism, we need to create another class called AuthenticationService. Make a directory call services under the src/app directory and change directory to this folder in the Visual Studio Code&#39;s terminal. Type the following.</p>
+<pre><code>ng generate class AuthenticationService
+</code></pre>
+<p>We will also create the UserService class. This class encapsulate the User logics. We will be using the method isUserRegistered to determine if the user has already register with our community. Change directory to the src/app/services folder and run the following Angular CLI command.</p>
+<pre><code>ng generate class UserService
+</code></pre>
+<p>Open the authentication-service.ts in Visual Studio Code, and noted that this is just an empty class. Add the following import statements to the file above the AuthenticationService class.</p>
+<pre><code>import { Injectable } from &#39;@angular/core&#39;;
+import * as firebase from &#39;firebase/app&#39;;
+import { AngularFireAuth } from &#39;@angular/fire/auth&#39;;
+import { Router } from &#39;@angular/router&#39;;
+import { Observable, BehaviorSubject } from &#39;rxjs&#39;;
+</code></pre>
+<p>In this class, we are injecting the AngularFireAuth component into our class in the constructor, hence, we need to import Injectable from the Angular core. We also need to inject the Route component so that the application can navigate to different components within our application based on the authentication states. Add a member variable user$ and add the constructor to AuthenticationService class. We are using rxjs&#39;s BehaviorSubject class. You can read more about rxjs <a href="https://www.learnrxjs.io/learn-rxjs/subjects/behaviorsubject" target="_blank">here</a>.</p>
+<p>variable:</p>
+<pre><code>  user$: BehaviorSubject&lt;User&gt; = new BehaviorSubject&lt;User&gt;(null);
+</code></pre>
+<p>constructor:</p>
+<pre><code>  constructor(
+    private afAuth: AngularFireAuth, // Inject Firebase auth service
+    private router: Router
+  ) {
+    this.afAuth.authState.subscribe(user =&gt; {
+      if (user) {
+        this.user$.next(user);
+      }
+    });
+  }
+</code></pre>
+<p>Next, we will need the following methods in the class.</p>
+<ul>
+<li>signInWithGoogle call Firebase&#39;s Google Sign In method</li>
+<li>logout singout Firebase and navigate to login page</li>
+</ul>
+<p>The user$ variable is subscribed to changes in the Firebase authentication state. When the application login via Firebase Google Sign-in method, the $user will have the authenticate state of the user.</p>
+<p>To sign in with the Firebase Google Sign-In method, the application calls the signInWithPopup method.</p>
+<pre><code>  // Sign in with Google
+  signInWithGoogle() {
+    return new Promise&lt;any&gt;((resolve, reject) =&gt; {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      this.afAuth.signInWithPopup(provider)
+        .then(res =&gt; {
+          resolve(res);
+        }).catch(err =&gt; {
+          reject(err);
+        });
+    })
+  }
+</code></pre>
+<p>To logout, the application calls the Firebase&#39;s signOut method.</p>
+<pre><code>  signOut() {
+    this.afAuth.signOut().then(() =&gt; {
+      this.user$.next(null);
+      this.router.navigate([&#39;./login&#39;]);
+    }).catch(err =&gt; {
+    });
+  }
+</code></pre>
+<p>Next, we will be working on the logics in the AuthGuard class. We need to first import AuthGuard class dependencies. Add the following imports to the file.</p>
+<pre><code>import { Injectable } from &#39;@angular/core&#39;;
+import * as firebase from &#39;firebase/app&#39;;
+import { AngularFireAuth } from &#39;@angular/fire/auth&#39;;
+import { Router } from &#39;@angular/router&#39;;
+</code></pre>
+<p>Next, implements the CanActivate interface:</p>
+<pre><code>@Injectable({ providedIn: &#39;root&#39; })
+export class AuthGuard implements CanActivate {
+</code></pre>
+<p>Inject the Router and the AuthenticationService into the class via the constructor.</p>
+<pre><code>    constructor(
+        private router: Router,
+        private authenticationService: AuthenticationService
+    ) { }
+</code></pre>
+<p>Next, we need to implement the CanActivate interface.</p>
+<pre><code>    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable&lt;boolean&gt; | Promise&lt;boolean&gt; | boolean {
+        return this.afAuth.authState.pipe(
+          map(user =&gt; {
+            if(user) {
+              return true;
+            } else {
+              this.router.navigate([&#39;/login&#39;]);
+              return false;
+            }
+          })
+        );
+      }
+</code></pre>
+<p>In Visual Studio Code, open the user-service.ts file, add the following import statements. We will store the userId in local storage when the user register with our community, and we check if the user has already been register with the community using this flag in local storage.</p>
+<pre><code>import { Injectable } from &#39;@angular/core&#39;;
+</code></pre>
+<p>Implment the isUserRegistered method:</p>
+<pre><code>  isUserRegistered() {
+    return localStorage.getItem(&#39;userId&#39;) !== null;
+  }
+</code></pre>
+<p>Right now we are fetching a value from <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API" target="_blank">localStorage</a> as shown in the code above so we can keep track of whether the user has registered or not (once we create the form page later in this project). For now, assume there will be a local variable stored in the browser&#39;s local storage called <em>userId</em> that will store the id of the user upon registration.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Wired up the Sign In With Google button" duration="0">
+        <p>With all the authentication logics in place, we can wire the Sign In With Google button in the front end. Go back to the login.component.html file. In the button tag, we will add the click event.</p>
+<pre><code> &lt;button (click)=&#34;onSignInWithGoogle()&#34; class=&#34;login-btn login-item&#34;&gt;Sign In With Google&lt;/button&gt;
+</code></pre>
+<p>In the login.component.ts, we need to add the following import statements to the file.</p>
+<pre><code>import { Component, OnInit } from &#39;@angular/core&#39;;
+import { Router } from &#39;@angular/router&#39;;
+import { AuthenticationService } from &#39;../services/authentication.service&#39;;
+import { UserService } from &#39;../services/user.service&#39;;
+</code></pre>
+<p>In the constructor, we need to inject AuthenticationService, UserService and Router.</p>
+<pre><code>  constructor(
+    private authservice: AuthenticationService,
+    private userService: UserService,
+    private router: Router) { }
+</code></pre>
+<p>Implement the onSignInWithGoogle method:</p>
+<pre><code>  onSignInWithGoogle() {
+    this.authservice.signInWithGoogle().then(value =&gt; {
+      if (!this.userService.isUserRegistered()) {
+        this.router.navigate([&#39;/form&#39;]);
+      }
+      else {
+        // TODO: navigate to the profile page 
+      }
+    });
+  }
+</code></pre>
+<p>Everything should be in place for you to be able to perform a login against the application using your Google credentials. If you run the application now from <strong>http://localhost:4200</strong> it should take you to the login screen.</p>
+<p>Clicking on the <strong>Sign In With Google</strong> button should show you the Google&#39;s authentication window, there you should put your credentials (a Gmail account). The window, upon successful authentication, should close on its own and redirect you back to the application to the placeholder page for the form.</p>
+<p>This allows you to create secure applications using existing authentication infrastructure which makes your users feel safe while navigating your web apps.</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/codelab-elements/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/prettify.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>

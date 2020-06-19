@@ -1,0 +1,24 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2020-06-18T22:33:26-04:00",
+  "id": "fullstack_login",
+  "duration": 2,
+  "title": "GDG Lawrence Full Stack Community Application Authentication Codelab",
+  "authors": "Kevin Quan",
+  "summary": "Create the Login component for the GDG Community project",
+  "source": "gdgfullstack_labs/codelabs-2.md",
+  "theme": "",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "meta"
+  ],
+  "tags": [
+    "beginner"
+  ],
+  "url": "fullstack_login"
+}
