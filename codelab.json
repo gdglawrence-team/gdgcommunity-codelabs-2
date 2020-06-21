@@ -3,8 +3,8 @@
   "format": "html",
   "prefix": "https://storage.googleapis.com",
   "mainga": "UA-49880327-14",
-  "updated": "2020-06-18T22:33:26-04:00",
-  "id": "fullstack_login",
+  "updated": "2020-06-19T20:02:05-04:00",
+  "id": "codelab2_login",
   "duration": 2,
   "title": "GDG Lawrence Full Stack Community Application Authentication Codelab",
   "authors": "Kevin Quan",
@@ -20,5 +20,5 @@
   "tags": [
     "beginner"
   ],
-  "url": "fullstack_login"
+  "url": "codelab2_login"
 }
