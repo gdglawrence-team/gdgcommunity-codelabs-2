@@ -103,15 +103,39 @@
 <p>From the application design, we know that we have the following routes. For this lab, we will focus on the default and the login routes. For the default route, we need an <strong>AuthGuard</strong> class to check our application authentication states.</p>
 <p>Our default route is to navigate to the form component, but if the authentication state is not login, the AuthGuard class will re-direct to the login component first.</p>
 <p>Create the basic page component for the Form page for this project by running the command <strong>ng generate component form</strong>. This will do the same as the login, where it will create an Angular component called <strong>form.component</strong> with a corresponding .HTML, .LESS. .TS files for the logic and testing, within a folder called <strong>form</strong>.</p>
-<p>To add the default and login routes, we add these codes in <strong>app-routing.module.ts</strong> to the routes array. As mentioned previously, the <strong>canActivate</strong> is check authentiction stats against the AuthGuard object.</p>
-<pre><code>  { path: &#39;&#39;, component: FormComponent, canActivate: [AuthGuard] },
-  { path: &#39;login&#39;, component: LoginComponent }
+<p>To add the default and login routes, we add these codes in <strong>app-routing.module.ts</strong> to the routes array. As mentioned previously, the <strong>canActivate</strong> checks the authentication status against the AuthGuard object.</p>
+<pre><code>  { path: &#39;login&#39;, component: LoginComponent },
+  { path: &#39;form&#39;, component: FormComponent, canActivate: [AuthGuard] },
+  { path: &#39;&#39;, redirectTo: &#39;/login&#39;, pathMatch: &#39;full&#39; }
+</code></pre>
+<h2 is-upgraded>More on Routes</h2>
+<p>The <em>app-routing.module.ts</em> as has the <strong>login</strong>, <strong>form</strong> and default route (denoted by the <em>path: &#34;</em>, which redirects to the <em>/login</em> route when no route is specified. What if you want to navigate straight to a route without having to go through the login or the default route? Right now the app will bomb on you and won&#39;t display anything.</p>
+<p>Another feature that can be used in web applications is the ability to do <em>deep-linking</em> - a way for users to land on a particular route / page within your Angular application. Remember that with Angular, you mostly build single-page apps, which only have the concept of a single page. With <em>deep-linking</em> you can simulate the notion of having several pages.</p>
+<p>The way you accomplish this is by adding the parameter <em>{ useHash: true }</em> to the <em>RouterModule.forRoot()</em> method, as follows:</p>
+<pre><code>...
+@NgModule({
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
+  exports: [RouterModule]
+})
+...
+</code></pre>
+<p>After this change, the urls now will contain a hash (#) right after the domain (<em>http://localhost:4200/#/</em>) but at least now if you try to navigate directly to one of the routes, you should be able to (as long as  you&#39;re authenticed, that is!).</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Importing Firebase Dependencies" duration="0">
+        <p>Install the core <strong>Firebase</strong> library to the project. This fulfills some of the underlying depencies that <strong>@angular/fire</strong> needs (will be installed further down).</p>
+<pre><code>npm install firebase 
 </code></pre>
 <p>Next, we will need to import the Firebase dependencies into our application. Open the Visual Studio Code terminal, type <strong>ng add @angular/fire</strong>. This Angular CLI <strong>ng add</strong> command adds the Firebase depdendencies into our project. It updates the <strong>packages.json</strong> file and installs the Firebase dependencies. When ask to select a project, select your project.</p>
 <pre><code>ng add @angular/fire
 </code></pre>
 <p>Next we add the Firebase dependencies to the <strong>app.module.ts</strong> file; add the following line of code into the imports array.</p>
 <p>The <strong>initializeApp</strong> method of the AngularFireModule initialize the application with the Firebase application configuration that is specified in environment.firebase constant. To setup the Firebase application configuration, we need to open the browser and logon to the Firebase console.</p>
+<p>Import the required module from the <strong>@angular/fire</strong> package:</p>
+<pre><code>import {AngularFireModule} from &#39;@angular/fire&#39;;
+</code></pre>
 <p>Navigate to our Firebase project and retrieve the Firebase application configuration.</p>
 <pre><code>AngularFireModule.initializeApp(environment.firebase, &#39;angular-auth-firebase&#39;)
 </code></pre>
@@ -259,7 +283,7 @@ UPDATE src/app/app.module.ts (471 bytes)
 <p>Open the auth-guard.ts file in Visual Studio Code. Note that an empty AuthGuard class is created. To authenticate with Firebase Google Sign In mechanism, we need to create another class called AuthenticationService. Make a directory call services under the src/app directory and change directory to this folder in the Visual Studio Code&#39;s terminal. Type the following.</p>
 <pre><code>ng generate class AuthenticationService
 </code></pre>
-<p>We will also create the UserService class. This class encapsulate the User logics. We will be using the method isUserRegistered to determine if the user has already register with our community. Change directory to the src/app/services folder and run the following Angular CLI command.</p>
+<p>We will also create the UserService class. This class encapsulate the User logic. We will be using the method <em>isUserRegistered</em> to determine if the user has already registered with our community. Change directory to the <strong>src/app/services</strong> folder and run the following Angular CLI command:</p>
 <pre><code>ng generate class UserService
 </code></pre>
 <p>Open the authentication-service.ts in Visual Studio Code, and noted that this is just an empty class. Add the following import statements to the file above the AuthenticationService class.</p>
@@ -267,7 +291,9 @@ UPDATE src/app/app.module.ts (471 bytes)
 import * as firebase from &#39;firebase/app&#39;;
 import { AngularFireAuth } from &#39;@angular/fire/auth&#39;;
 import { Router } from &#39;@angular/router&#39;;
-import { Observable, BehaviorSubject } from &#39;rxjs&#39;;
+import { BehaviorSubject } from &#39;rxjs&#39;;
+import { User } from &#39;firebase&#39;;
+import { UserService } from &#39;./user.service&#39;;
 </code></pre>
 <p>In this class, we are injecting the AngularFireAuth component into our class in the constructor, hence, we need to import Injectable from the Angular core. We also need to inject the Route component so that the application can navigate to different components within our application based on the authentication states. Add a member variable user$ and add the constructor to AuthenticationService class. We are using rxjs&#39;s BehaviorSubject class. You can read more about rxjs <a href="https://www.learnrxjs.io/learn-rxjs/subjects/behaviorsubject" target="_blank">here</a>.</p>
 <p>variable:</p>
@@ -285,6 +311,15 @@ import { Observable, BehaviorSubject } from &#39;rxjs&#39;;
     });
   }
 </code></pre>
+<h2 is-upgraded>Getting the Authenticated User</h2>
+<p>Notice in the constructor how we are capturing the authenticated user from the <em>AngularFireAuth</em>&#39;s <strong>authState</strong> callback subscription, and storing it in the <em>user$</em> property. For other people to access the user information globally, we create a method called <strong>getUser()</strong> that returns just that. Add the following method below:</p>
+<pre><code>...
+getUser() {
+    return this.user$.asObservable();
+}
+...
+</code></pre>
+<p>Calling <em>getUser()</em> returns an <strong>Observable</strong> instance that we can subscribe to, and whenever the user changes, it notifies any subscribed components about the change, triggering a digest cycle in Angular.</p>
 <p>Next, we will need the following methods in the class.</p>
 <ul>
 <li>signInWithGoogle call Firebase&#39;s Google Sign In method</li>
@@ -316,18 +351,19 @@ import { Observable, BehaviorSubject } from &#39;rxjs&#39;;
 </code></pre>
 <p>Next, we will be working on the logics in the AuthGuard class. We need to first import AuthGuard class dependencies. Add the following imports to the file.</p>
 <pre><code>import { Injectable } from &#39;@angular/core&#39;;
-import * as firebase from &#39;firebase/app&#39;;
+import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from &#39;@angular/router&#39;;
 import { AngularFireAuth } from &#39;@angular/fire/auth&#39;;
-import { Router } from &#39;@angular/router&#39;;
+import { Observable } from &#39;rxjs&#39;;
+import { map } from &#39;rxjs/operators&#39;;
 </code></pre>
 <p>Next, implements the CanActivate interface:</p>
 <pre><code>@Injectable({ providedIn: &#39;root&#39; })
 export class AuthGuard implements CanActivate {
 </code></pre>
-<p>Inject the Router and the AuthenticationService into the class via the constructor.</p>
+<p>Import the necessary dependecies at the top of the class. Inject the Router and the AuthenticationService into the class via the constructor.</p>
 <pre><code>    constructor(
-        private router: Router,
-        private authenticationService: AuthenticationService
+        private afAuth: AngularFireAuth
+        private router: Router
     ) { }
 </code></pre>
 <p>Next, we need to implement the CanActivate interface.</p>
@@ -344,20 +380,29 @@ export class AuthGuard implements CanActivate {
         );
       }
 </code></pre>
-<p>In Visual Studio Code, open the user-service.ts file, add the following import statements. We will store the userId in local storage when the user register with our community, and we check if the user has already been register with the community using this flag in local storage.</p>
+<h2 is-upgraded>Updating the User Service service</h2>
+<p>In Visual Studio Code, open the <em>user-service.ts</em> file, add the following import statements. We will store the userId in local storage when the user register with our community, and we check if the user has already been register with the community using this flag in local storage.</p>
 <pre><code>import { Injectable } from &#39;@angular/core&#39;;
 </code></pre>
-<p>Implment the isUserRegistered method:</p>
+<p>Implement the <em>isUserRegistered</em> method:</p>
 <pre><code>  isUserRegistered() {
     return localStorage.getItem(&#39;userId&#39;) !== null;
   }
 </code></pre>
 <p>Right now we are fetching a value from <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API" target="_blank">localStorage</a> as shown in the code above so we can keep track of whether the user has registered or not (once we create the form page later in this project). For now, assume there will be a local variable stored in the browser&#39;s local storage called <em>userId</em> that will store the id of the user upon registration.</p>
+<h2 is-upgraded>Getting the Registered User</h2>
+<p>Implement the <em>getUser</em> method in the <em>UserSrvice</em> which is different from the <em>getUser</em> from the <em>AuthenticationService</em>, since this one returns the registered user from Firebase as opposed to the authenticated user from Firebase Authentication. For this, you provide ther user&#39;s id (the id provided by Firebase Auth). Add the following code:</p>
+<pre><code>...
+getUser(userId: string) {
+  return this.firestore.collection(&#39;community&#39;).doc(userId).ref.get();
+}
+...
+</code></pre>
 
 
       </google-codelab-step>
     
-      <google-codelab-step label="Wired up the Sign In With Google button" duration="0">
+      <google-codelab-step label="Wire up the Sign In With Google button" duration="0">
         <p>With all the authentication logics in place, we can wire the Sign In With Google button in the front end. Go back to the login.component.html file. In the button tag, we will add the click event.</p>
 <pre><code> &lt;button (click)=&#34;onSignInWithGoogle()&#34; class=&#34;login-btn login-item&#34;&gt;Sign In With Google&lt;/button&gt;
 </code></pre>
