@@ -91,14 +91,73 @@
       <google-codelab-step label="Setup Angular Application" duration="0">
         <p>With the generated Angular application, we need to setup application dependencies and features for the application navigation. In this step, we need to perform the following to create our login page.</p>
 <ul>
+<li>Import global project styles</li>
 <li>Clean up application template</li>
 <li>Angular Routing</li>
 <li>Firebase Dependencies</li>
 </ul>
-<p>Open the app.component.html and change its content to the following. The app component is the bootstrap component which is specified in the <strong>app.module.ts</strong>.</p>
-<p>Open the <strong>app.module.ts</strong> to review the Angular bootstrap component. The <strong>app.module.ts</strong> file specified application declarations and imports as well. When we use <strong>ng generate component login</strong>, the generator has already added the login declaration for us.</p>
+<p>Before you start, it is good to establish some core resources you&#39;ll be leveraging throughout the application, such as the fonts we will be using, the colors, and common styles.</p>
+<p>At the root of the project, find the <strong>assets</strong> folder. Here&#39;s where you will place commonly used resources throughout the application (images, fonts, styles, etc.). Inside this folder, create a subfolder called <em>fonts</em> and drop the font on this <a href="https://drive.google.com/file/d/13uBKKNNySIcnmHSxBI73IW_UluYdaqLo/view?usp=sharing" target="_blank">link to download the font</a>. The font we will be using is called <strong>ProductSansRegular</strong> which is one of Google&#39;s most widely used fonts. Your structure should look like this:</p>
+<pre><code>- assets
+- - fonts
+      product-sans-regular.ttf
+</code></pre>
+<p>Next, create another folder inside <strong>assets</strong> called <em>styles</em>. This is where the common styles will live (LESS files) that you&#39;ll be able to reuse in your application by simply importing them where you need them. Inside this folder, create a file called <em>colors.less</em> which will hold all colors used in the application. Your structure will look like this after:</p>
+<pre><code>- assets
+- - fonts
+      product-sans-regular.ttf
+- - styles
+      colors.less
+</code></pre>
+<p>Inside the <strong>colors.less</strong> file, drop the following styles:</p>
+<pre><code>/* You can add global styles to this file, and also import other style files */
+@color_blue : #006FC5;
+@color_btn_blue: rgba(255,255,255, 0.1);
+@color_bgkblue: #1161BE;
+@color_grey: grey;
+@color_profile: #00C26B;
+@color_hover_bckg: rgba(255,255,255, 0.2);
+@color_focus_bckg: rgb(89, 147, 192);
+</code></pre>
+<p>Notice we are using LESS&#39;s way of creating CSS variables. Later in the code you will see how we refer to these variables after importing the file.</p>
+<p>At the root of the project, under the <em>src</em> folder, you should find a <strong>styles.less</strong> file. This is the highest styles files you can have in your project - we usually reserve it for app level, global styles. Paste the code below inside this <strong>styles.less</strong> file:</p>
+<pre><code>@import &#39;./assets/styles/colors.less&#39;;
+
+@font-face {
+    font-family: &#39;ProductSansRegular&#39;;
+    src: url(&#39;./assets/fonts/product-sans-regular.ttf&#39;);
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    font-family: &#39;ProductSansRegular&#39;, sans-serif;
+}
+
+.bdyblue {
+    background-color: @color_bgkblue;
+}
+
+button {
+    border: none !important;
+    font-family: &#39;ProductSansRegular&#39;, sans-serif;
+}
+
+.common-btn {
+    color: #FFF;
+    background: @color_blue;
+    padding: 20px;
+    border-radius: 10px;
+    font-size: 1.15em;
+    cursor: pointer;
+}
+</code></pre>
+<p>Notice above how we are importing the <strong>colors.less</strong> file (line 1, using the <strong>@import</strong> statement). Right below we set up our own custom font face using the imported font file and call it <strong>ProductSansRegular</strong>. We use it then in the <em>body</em> a few lines below.</p>
+<p>Look how we also refer to the LESS variables we defined previously in the <strong>colors.less</strong> file. For the class <em>.bdyblue</em> instead of hardcoding the blue color, we use the LESS variable <em>@color_bgkblue</em> which holds the value. Any changes to this variable will ripple throughout the application with a single change.</p>
+<p>Open the app.component.html and change its content to the following code. The app component is the bootstrap component which is specified in the <strong>app.module.ts</strong>.</p>
 <pre><code>&lt;router-outlet&gt;&lt;/router-outlet&gt;
 </code></pre>
+<p>Open the <strong>app.module.ts</strong> to review the Angular bootstrap component. The <strong>app.module.ts</strong> file specified application declarations and imports as well. When we use <strong>ng generate component login</strong>, the generator has already added the login declaration for us.</p>
 <p>When the application is generated, Angular route has been generated into the <strong>app-routing.module.ts</strong>. However, the application routes have not been defined. We have to define our application routes in this file.</p>
 <p>From the application design, we know that we have the following routes. For this lab, we will focus on the default and the login routes. For the default route, we need an <strong>AuthGuard</strong> class to check our application authentication states.</p>
 <p>Our default route is to navigate to the form component, but if the authentication state is not login, the AuthGuard class will re-direct to the login component first.</p>
@@ -193,18 +252,7 @@ UPDATE src/app/app.module.ts (471 bytes)
   &lt;/div&gt;
 &lt;/div&gt;
 </code></pre>
-<p>At this point, you can only display the login page. There is no authentication logic yet. Let&#39;s proceed with the corresponding CSS.</p>
-<p>In the project, under the <strong>assets</strong> folder, create another folder called <strong>styles</strong>. This will house all the CSS related to the project. Create a LESS file called <strong>colors.less</strong> which will contain common classes representing colors across the application.</p>
-<p>Copy all these LESS variables representing the various colors we&#39;ll use. This is how you organize your CSS classes, by having common classes located in a single file and then you can import anywhere else.</p>
-<pre><code>@color_blue : #006FC5;
-@color_btn_blue: rgba(255,255,255, 0.1);
-@color_bgkblue: #1161BE;
-@color_grey: grey;
-@color_profile: #00C26B;
-@color_hover_bckg: rgba(255,255,255, 0.2);
-@color_focus_bckg: rgb(89, 147, 192);
-</code></pre>
-<p>Now, go back to the login component folder and find the <strong>login.component.less</strong> file.</p>
+<p>At this point, you can only display the login page. There is no authentication logic yet. Now, go back to the login component folder and find the <strong>login.component.less</strong> file.</p>
 <p>At the top of the file, add an import statement of the color LESS file, that way in this component we can access those color variables. By using the <strong>@import</strong> statement followed by the relative path of the location of a LESS file is how you import them, allowing you to reuse LESS files across your web app.</p>
 <pre><code>@import &#39;./../../assets/styles/colors.less&#39;;
 </code></pre>
