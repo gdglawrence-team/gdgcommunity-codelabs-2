@@ -162,6 +162,8 @@ button {
 <p>From the application design, we know that we have the following routes. For this lab, we will focus on the default and the login routes. For the default route, we need an <strong>AuthGuard</strong> class to check our application authentication states.</p>
 <p>Our default route is to navigate to the form component, but if the authentication state is not login, the AuthGuard class will re-direct to the login component first.</p>
 <p>Create the basic page component for the Form page for this project by running the command <strong>ng generate component form</strong>. This will do the same as the login, where it will create an Angular component called <strong>form.component</strong> with a corresponding .HTML, .LESS. .TS files for the logic and testing, within a folder called <strong>form</strong>.</p>
+<pre><code>ng generate component form
+</code></pre>
 <p>To add the default and login routes, we add these codes in <strong>app-routing.module.ts</strong> to the routes array. As mentioned previously, the <strong>canActivate</strong> checks the authentication status against the AuthGuard object.</p>
 <pre><code>  { path: &#39;login&#39;, component: LoginComponent },
   { path: &#39;form&#39;, component: FormComponent, canActivate: [AuthGuard] },
@@ -334,6 +336,12 @@ UPDATE src/app/app.module.ts (471 bytes)
 <p>We will also create the UserService class. This class encapsulate the User logic. We will be using the method <em>isUserRegistered</em> to determine if the user has already registered with our community. Change directory to the <strong>src/app/services</strong> folder and run the following Angular CLI command:</p>
 <pre><code>ng generate class UserService
 </code></pre>
+<p>This UserService class will be used as an injectable component in other classes in this and future codelabs. The @Injectable decorator is needed to mark the class as injectable class.</p>
+<pre><code>@Injectable({ providedIn: &#39;root&#39; })
+export class UserService {
+ ...
+}
+</code></pre>
 <p>Open the authentication-service.ts in Visual Studio Code, and noted that this is just an empty class. Add the following import statements to the file above the AuthenticationService class.</p>
 <pre><code>import { Injectable } from &#39;@angular/core&#39;;
 import * as firebase from &#39;firebase/app&#39;;
@@ -358,6 +366,12 @@ import { UserService } from &#39;./user.service&#39;;
       }
     });
   }
+</code></pre>
+<p>This AuthenticationService class will be used as an injectable component in other classes in this and future codelabs. The @Injectable decorator is needed to mark the class as injectable class.</p>
+<pre><code>@Injectable({ providedIn: &#39;root&#39; })
+export class AuthenticationService {
+ ...
+}
 </code></pre>
 <h2 is-upgraded>Getting the Authenticated User</h2>
 <p>Notice in the constructor how we are capturing the authenticated user from the <em>AngularFireAuth</em>&#39;s <strong>authState</strong> callback subscription, and storing it in the <em>user$</em> property. For other people to access the user information globally, we create a method called <strong>getUser()</strong> that returns just that. Add the following method below:</p>
