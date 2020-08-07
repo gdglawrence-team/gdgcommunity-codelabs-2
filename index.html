@@ -192,14 +192,16 @@ button {
 <p>Next, we will need to import the Firebase dependencies into our application. Open the Visual Studio Code terminal, type <strong>ng add @angular/fire</strong>. This Angular CLI <strong>ng add</strong> command adds the Firebase depdendencies into our project. It updates the <strong>packages.json</strong> file and installs the Firebase dependencies. When ask to select a project, select your project.</p>
 <pre><code>ng add @angular/fire
 </code></pre>
-<p>Next we add the Firebase dependencies to the <strong>app.module.ts</strong> file; add the following line of code into the imports array.</p>
-<p>The <strong>initializeApp</strong> method of the AngularFireModule initialize the application with the Firebase application configuration that is specified in environment.firebase constant. To setup the Firebase application configuration, we need to open the browser and logon to the Firebase console.</p>
+<p>Next we add the Firebase dependencies to the <strong>app.module.ts</strong> file; First, add the import statement for the AngularFireModule to the file, and second, add the AngularFireModule into the imports array of the <strong>app.module.ts</strong>.</p>
 <p>Import the required module from the <strong>@angular/fire</strong> package:</p>
 <pre><code>import {AngularFireModule} from &#39;@angular/fire&#39;;
+...
 </code></pre>
-<p>Navigate to our Firebase project and retrieve the Firebase application configuration.</p>
+<p>Add the AngularModule to the imports array:</p>
 <pre><code>AngularFireModule.initializeApp(environment.firebase, &#39;angular-auth-firebase&#39;)
 </code></pre>
+<p>The <strong>initializeApp</strong> method of the AngularFireModule initializes the application with the Firebase application configuration that is specified in environment.firebase constant. To setup the Firebase application configuration, we need to open the browser and logon to the Firebase console.</p>
+<p>Navigate to our Firebase project and retrieve the Firebase application configuration, and update the project environment.firebase constant.</p>
 <p>In the previous step, we have create the Firebase project, but we have not register it with the Web App yet. To register with our Web App, click the <strong>Web App</strong> button in the Firebase project home page.</p>
 <p>To see which button is the Web App, hover your mouse over the buttons. After clicking the Web App button, you will be prompted with the Add Firebase to your web app screen, enter gdgcommunity for the App nickname.</p>
 <p>Click the <strong>Register App</strong> button to complete the registration. Copy the Firebase application configuration from the registration details screen. There is a copy button on the lower right corner and paste the Firebase application configuration to the environment files in the application. We will name the configuration in the <strong>environment.ts</strong> and <strong>environment.prod.ts</strong> firebase. See code snippets below.</p>
@@ -337,8 +339,16 @@ UPDATE src/app/app.module.ts (471 bytes)
 <pre><code>ng generate class UserService
 </code></pre>
 <p>This UserService class will be used as an injectable component in other classes in this and future codelabs. The @Injectable decorator is needed to mark the class as injectable class.</p>
-<pre><code>@Injectable({ providedIn: &#39;root&#39; })
+<p>Next, import the AngularFirestoe component to the user.service.ts and declare a dependendency injection argument, firestore, in the constructor for the AngularFirestore component. See the code snippet below.</p>
+<pre><code>...
+import { AngularFirestore } from &#39;@angular/fire/firestore&#39;;
+...
+
+@Injectable({ providedIn: &#39;root&#39; })
 export class UserService {
+    constructor(
+    private firestore: AngularFirestore
+  ) { }
  ...
 }
 </code></pre>
